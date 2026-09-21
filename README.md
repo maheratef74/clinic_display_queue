@@ -1,6 +1,6 @@
 # Clinic Queue — patient calling display
 
-Plain HTML + CSS + vanilla JavaScript with a small Node.js backend. No database, no build step, no external dependencies.
+Plain HTML + CSS + vanilla JavaScript. No backend, no database, no build step, no external dependencies.
 
 ## Structure
 
@@ -8,46 +8,25 @@ Plain HTML + CSS + vanilla JavaScript with a small Node.js backend. No database,
 clinic-queue/
 ├── index.html        Control page (receptionist / doctor)
 ├── display.html      TV / monitor page
-├── server.js          Node server, queue actions, and JSON persistence
-├── queue-state.json   Created automatically; shared queue data
 ├── config.js          Clinic name and speech settings
-├── queue.js           Browser API facade
+├── queue.js           LocalStorage state and cross-tab synchronization
 ├── control.js         Control page UI
 └── display.js         Display page: rendering, speech, fullscreen
 ```
 
 ## Run
 
-1. Install Node.js, then run `node server.js` from this folder.
+1. Open `index.html` directly, or serve the folder with `python -m http.server 8000`.
 2. Open `http://localhost:8000/index.html` for the control page.
-3. Open `http://localhost:8000/display.html` on the display device.
-4. For other devices on the same network, replace `localhost` with the server computer's LAN IP address, for example `http://192.168.1.20:8000/index.html`.
+3. Open `http://localhost:8000/display.html` on the display device in the same browser/origin.
 
-The server stores the queue in `queue-state.json` beside `server.js`. Do not open the HTML files directly with `file://`.
-
-### Deploy to Railway or Render
-
-Deploy the repository as a **Node web service**, not a static site. The start command is `npm start`, which runs `node server.js`. The service uses the platform-provided `PORT` and exposes `/health` for health checks.
-
-On Render, use the included `render.yaml`. Set `DATA_FILE=/data/queue-state.json` so the queue is stored on the persistent disk. Railway must use a persistent volume mounted at `/data` with the same `DATA_FILE=/data/queue-state.json` environment variable; without a volume, the queue can be lost on redeploy.
-
-Deployment checklist:
-
-1. Connect the service to this repository's `main` branch.
-2. Set the repository root as the service root directory.
-3. Use `npm install` as the build command and `npm start` as the start command.
-4. Add a persistent volume mounted at `/data`.
-5. Add the environment variable `DATA_FILE=/data/queue-state.json`.
-6. Save the settings and redeploy the service.
-
-After deployment, test `https://YOUR-SERVICE/health` and confirm it returns `{"ok":true}`. Then open `https://YOUR-SERVICE/index.html`. Do not use a separate static-site deployment unless the frontend API URL is changed to point to this Node service.
+The queue is stored in browser `localStorage` under `clinic_queue_state_v1`. The two pages share it when opened from the same browser and origin.
 
 ## How it works
 
-- **State** lives on the Node server in `queue-state.json`:
+- **State** lives in browser `localStorage` under `clinic_queue_state_v1`:
   `{ patients, currentPatientId, nextNormalNumber, nextEmergencyNumber, lastAction, lastActionId }`.
-  Every action is validated and serialized by the server before the JSON file is updated.
-- **Real-time sync**: connected pages receive server-sent events from `/api/events`, so multiple control devices and display screens share the same state.
+- **Real-time sync**: pages opened in the same browser and origin synchronize through `BroadcastChannel`, with the browser `storage` event as a fallback.
 - **Order**: automatic flow is first-added, first-called. In the control page, waiting patients can be moved up/down, moved directly to the first/last position, or called immediately; this changes the same queue order used by **التالي**.
   Emergency patients have their own numbering (طوارئ1, طوارئ2…) but do **not** jump the queue.
 - **Numbers**: suggested automatically per type; can be overridden (digits only, Arabic-Indic digits accepted). Change the emergency prefix in `config.js` if needed.
@@ -70,9 +49,8 @@ After deployment, test `https://YOUR-SERVICE/health` and confirm it returns `{"o
   After a page refresh, click once again.
 - **Voices depend on the device.** If no Arabic voice is installed, the default voice will read the name (possibly badly).
   Install an Arabic voice / language pack in the operating system, then test with **إعادة النداء**.
-- **Network access**: other devices must be able to reach the server computer on port 8000. Configure the firewall if necessary.
-- **Security**: this basic server has no login or HTTPS. Use it only on a trusted local network, and protect `queue-state.json` because it contains patient names.
-- The server computer's `queue-state.json` is the source of truth; browser cache or site-data clearing does not delete it.
+- **Same browser, same profile, same origin**: another device or browser has a separate queue.
+- Clearing browser site data deletes the queue.
 - Fullscreen is not available on iPhone Safari (the button hides itself). The browser's normal way out (Esc / F11) always works.
 - The display and control pages must not be opened from different origins (e.g. one from `file://` and one from `localhost`).
 

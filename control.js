@@ -195,7 +195,7 @@
   Array.prototype.forEach.call(form.elements.type, function (radio) {
     radio.addEventListener("change", function () {
       numberTouched = false;
-      Queue.load().then(refreshNumberField);
+      refreshNumberField(Queue.load());
     });
   });
 
@@ -248,8 +248,8 @@
   // ---------- البدء ----------
   $("clinicName").textContent = CFG.clinicName || "";
   document.title = "نظام انتظار المرضى — " + (CFG.clinicName || "");
-  $("syncMode").textContent = "الخادم + ملف JSON";
+  $("syncMode").textContent = Queue.syncMode === "broadcast" ? "BroadcastChannel" : "التخزين المحلي";
 
-  Queue.load().then(render);
+  render(Queue.load());
   Queue.subscribe(render); // تغييرات قادمة من نافذة تحكم أخرى
 })();
