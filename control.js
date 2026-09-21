@@ -101,11 +101,23 @@
         down.title = "تأخير المريض";
         down.setAttribute("aria-label", "تأخير " + p.name);
         down.onclick = () => apply(Queue.movePatient(p.id, "down"));
+        const top = el("button", "btn-row btn-row-wide", "أولاً");
+        top.type = "button";
+        top.title = "نقل المريض إلى أول قائمة الانتظار";
+        top.setAttribute("aria-label", "نقل " + p.name + " إلى أول القائمة");
+        top.onclick = () => apply(Queue.movePatient(p.id, "top"));
+        const bottom = el("button", "btn-row btn-row-wide", "أخيراً");
+        bottom.type = "button";
+        bottom.title = "نقل المريض إلى آخر قائمة الانتظار";
+        bottom.setAttribute("aria-label", "نقل " + p.name + " إلى آخر القائمة");
+        bottom.onclick = () => apply(Queue.movePatient(p.id, "bottom"));
         const call = el("button", "btn-call-row", "نداء الآن");
         call.type = "button";
         call.onclick = () => apply(Queue.callPatientById(p.id), "تم نداء " + p.number + " — " + p.name);
         controls.appendChild(up);
         controls.appendChild(down);
+        controls.appendChild(top);
+        controls.appendChild(bottom);
         controls.appendChild(call);
         li.appendChild(controls);
       }

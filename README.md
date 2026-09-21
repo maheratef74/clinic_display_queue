@@ -37,7 +37,7 @@ and `http://localhost:8000/display.html`. Or use Chrome / Edge.
   `{ type: "QUEUE_UPDATED", action: "CALL_NEXT" | "RECALL" | ..., state, eventId }`.
   If `BroadcastChannel` is missing, the `storage` event is used instead (state carries the same `lastAction` / `lastActionId`).
   Set `forceStorageFallback: true` in `config.js` to test the fallback.
-- **Order**: automatic flow is first-added, first-called. In the control page, waiting patients can be moved up/down or called immediately; this changes the same queue order used by **التالي**.
+- **Order**: automatic flow is first-added, first-called. In the control page, waiting patients can be moved up/down, moved directly to the first/last position, or called immediately; this changes the same queue order used by **التالي**.
   Emergency patients have their own numbering (طوارئ1, طوارئ2…) but do **not** jump the queue.
 - **Numbers**: suggested automatically per type; can be overridden (digits only, Arabic-Indic digits accepted). Change the emergency prefix in `config.js` if needed.
   Two *active* (waiting / called) patients cannot share a number.

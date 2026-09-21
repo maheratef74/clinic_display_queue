@@ -224,16 +224,27 @@ const Queue = (function () {
 
   function movePatient(id, direction) {
     const s = load();
-    const index = s.patients.findIndex((p) => p.id === id && p.status === "waiting");
-    if (index < 0) return fail("هذا المريض غير موجود في قائمة الانتظار");
-    const step = direction === "up" ? -1 : direction === "down" ? 1 : 0;
-    const target = index + step;
-    if (!step || target < 0 || target >= s.patients.length || s.patients[target].status !== "waiting") {
+    const waitingIndexes = s.patients.reduce((indexes, p, index) => {
+      if (p.status === "waiting") indexes.push(index);
+      return indexes;
+    }, []);
+    const position = waitingIndexes.findIndex((index) => s.patients[index].id === id);
+    if (position < 0) return fail("هذا المريض غير موجود في قائمة الانتظار");
+    const targetPosition = direction === "top" ? 0 :
+      direction === "bottom" ? waitingIndexes.length - 1 :
+      position + (direction === "up" ? -1 : direction === "down" ? 1 : 0);
+    if (targetPosition < 0 || targetPosition >= waitingIndexes.length || targetPosition === position) {
       return fail("لا يمكن تغيير ترتيب هذا المريض أكثر");
     }
-    const moved = s.patients[index];
-    s.patients[index] = s.patients[target];
-    s.patients[target] = moved;
+    const [moved] = s.patients.splice(waitingIndexes[position], 1);
+    const remainingWaitingIndexes = s.patients.reduce((indexes, p, index) => {
+      if (p.status === "waiting") indexes.push(index);
+      return indexes;
+    }, []);
+    const insertAt = targetPosition === remainingWaitingIndexes.length
+      ? s.patients.length
+      : remainingWaitingIndexes[targetPosition];
+    s.patients.splice(insertAt, 0, moved);
     return commit(s, "REORDER", moved);
   }
 
