@@ -164,7 +164,8 @@
   }
 
   // يعرض نتيجة العملية ويحدّث الشاشة (BroadcastChannel لا يعيد الرسالة لنفس الصفحة)
-  function apply(result, successMessage) {
+  async function apply(result, successMessage) {
+    result = await result;
     if (!result.ok) { toast(result.message, "error"); return false; }
     if (result.saved === false) toast("تعذّر حفظ البيانات في المتصفح، قد تضيع عند التحديث", "error");
     render(result.state);
@@ -173,9 +174,9 @@
   }
 
   // ---------- الأحداث ----------
-  form.addEventListener("submit", function (e) {
+  form.addEventListener("submit", async function (e) {
     e.preventDefault();
-    const r = Queue.addPatient(nameInput.value, currentType(), numberInput.value);
+    const r = await Queue.addPatient(nameInput.value, currentType(), numberInput.value);
     if (!r.ok) {
       toast(r.message, "error");
       nameInput.setAttribute("aria-invalid", r.field === "name" ? "true" : "false");
@@ -194,7 +195,7 @@
   Array.prototype.forEach.call(form.elements.type, function (radio) {
     radio.addEventListener("change", function () {
       numberTouched = false;
-      refreshNumberField(Queue.load());
+      Queue.load().then(refreshNumberField);
     });
   });
 
@@ -203,28 +204,31 @@
     numberInput.value = Queue.toLatinDigits(numberInput.value).replace(/\D/g, ""); // أرقام فقط (تقبل الأرقام العربية)
   });
 
-  $("btnNext").addEventListener("click", function () {
-    const r = Queue.callNext();
+  $("btnNext").addEventListener("click", async function () {
+    const r = await Queue.callNext();
     apply(r, r.ok ? "تم نداء " + r.patient.number + " — " + r.patient.name : "");
   });
 
-  $("btnRecall").addEventListener("click", function () {
-    const r = Queue.recall();
-    apply(r, r.ok ? "تمت إعادة نداء " + r.patient.name : "");
+  $("btnRecall").addEventListener("click", async function () {
+    const name = $("curName").textContent;
+    const r = await Queue.recall();
+    apply(r, r.ok ? "تمت إعادة نداء " + name : "");
   });
 
-  $("btnSkip").addEventListener("click", function () {
-    const r = Queue.skip();
+  $("btnSkip").addEventListener("click", async function () {
+    const name = $("curName").textContent;
+    const r = await Queue.skip();
     if (!r.ok) return apply(r);
     const next = Queue.currentPatient(r.state);
     apply(r, next
-      ? "تم تخطي " + r.patient.name + " ونداء " + next.number + " — " + next.name
-      : "تم تخطي " + r.patient.name + " ولا يوجد مرضى آخرون في الانتظار");
+      ? "تم تخطي " + name + " ونداء " + next.number + " — " + next.name
+      : "تم تخطي " + name + " ولا يوجد مرضى آخرون في الانتظار");
   });
 
-  $("btnComplete").addEventListener("click", function () {
-    const r = Queue.complete();
-    apply(r, r.ok ? "تم إنهاء زيارة " + r.patient.name : "");
+  $("btnComplete").addEventListener("click", async function () {
+    const name = $("curName").textContent;
+    const r = await Queue.complete();
+    apply(r, r.ok ? "تم إنهاء زيارة " + name : "");
   });
 
   function removeWithConfirm(p) {
@@ -244,8 +248,8 @@
   // ---------- البدء ----------
   $("clinicName").textContent = CFG.clinicName || "";
   document.title = "نظام انتظار المرضى — " + (CFG.clinicName || "");
-  $("syncMode").textContent = Queue.syncMode === "broadcast" ? "BroadcastChannel" : "storage (احتياطي)";
+  $("syncMode").textContent = "الخادم + ملف JSON";
 
-  render(Queue.load());
+  Queue.load().then(render);
   Queue.subscribe(render); // تغييرات قادمة من نافذة تحكم أخرى
 })();

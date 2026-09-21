@@ -98,9 +98,10 @@
     if (isCall) speak(cur.name);
   }
 
-  const initial = Queue.load();
-  handledEventId = initial.lastActionId; // الحالة الأولية تُعتبر "مُعالَجة": لا نطق عند فتح الصفحة
-  render(initial, false);
+  Queue.load().then(function (initial) {
+    handledEventId = initial.lastActionId; // الحالة الأولية تُعتبر "مُعالَجة": لا نطق عند فتح الصفحة
+    render(initial, false);
+  });
   Queue.subscribe(onState);
 
   $("clinicName").textContent = CFG.clinicName || "";
