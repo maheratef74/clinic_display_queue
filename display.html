@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>شاشة النداء</title>
+  <link rel="stylesheet" href="display.css">
+</head>
+<body>
+  <main class="stage" id="stage" data-state="empty" data-type="normal">
+    <p class="clinic" id="clinicName"></p>
+
+    <section class="call" id="callBox" aria-live="assertive">
+      <p class="label">رقم الدور</p>
+      <div class="number" id="number" dir="ltr">0</div>
+      <h1 class="name" id="name"></h1>
+    </section>
+
+    <section class="idle">
+      <p class="idle-title">لا يوجد مريض يتم نداؤه حاليًا</p>
+      <p class="idle-sub">يرجى الانتظار</p>
+    </section>
+  </main>
+
+  <p class="sound-hint" id="soundHint" hidden>اضغط في أي مكان لتفعيل الصوت</p>
+  <div class="toolbar"><button id="btnFullscreen" type="button">ملء الشاشة</button></div>
+
+  <script src="config.js"></script>
+  <script src="queue.js"></script>
+  <script src="display.js"></script>
+</body>
+</html>

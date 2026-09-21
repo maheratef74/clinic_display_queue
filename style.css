@@ -1,0 +1,200 @@
+/* ==========================================================
+   style.css — صفحة التحكم
+   الفكرة: صفحة هادئة فاتحة، وبطاقة "المريض الحالي" هي العنصر
+   الداكن الوحيد، ويتحوّل لونها إلى أحمر داكن عند الطوارئ.
+   ========================================================== */
+:root {
+  --bg: #edf2f1;
+  --panel: #ffffff;
+  --ink: #12282a;
+  --muted: #566f72;
+  --line: #d3dfe0;
+  --teal: #1769aa;
+  --teal-dark: #0d3b66;
+  --teal-soft: #e0effb;
+  --mint: #83c9f4;
+  --red: #b3261e;
+  --red-soft: #fbe6e3;
+  --red-dark: #5a1b17;
+  --amber: #8a5300;
+  --amber-soft: #fdf0d5;
+  --green: #1b6b3a;
+  --green-soft: #e0f3e6;
+  --focus: #2563eb;
+  --font: "Segoe UI", "Noto Sans Arabic", Tahoma, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.55;
+}
+h1, h2, p { margin: 0; }
+h2 { font-size: 1.15rem; font-weight: 700; }
+
+/* ---------- التخطيط ---------- */
+.app {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "top" "add" "current" "waiting" "history" "danger" "foot";
+}
+.top     { grid-area: top; }
+.add     { grid-area: add; }
+.current { grid-area: current; }
+.waiting { grid-area: waiting; }
+.history { grid-area: history; }
+.danger  { grid-area: danger; }
+.foot    { grid-area: foot; }
+
+@media (min-width: 920px) {
+  .app {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    grid-template-areas:
+      "top top"
+      "current add"
+      "waiting waiting"
+      "history history"
+      "danger danger"
+      "foot foot";
+  }
+}
+
+/* ---------- الترويسة ---------- */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: .25rem 0; }
+.top h1 { font-size: 1.7rem; font-weight: 800; line-height: 1.25; }
+.clinic-name { color: var(--teal); font-weight: 700; }
+
+/* ---------- الأقسام ---------- */
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 1.25rem; }
+.panel-head { display: flex; align-items: baseline; gap: .75rem; }
+.count { background: var(--teal-soft); color: var(--teal); font-weight: 800; border-radius: 999px; padding: 0 .75rem; min-width: 2rem; text-align: center; }
+.hint { color: var(--muted); font-size: .9rem; }
+
+/* ---------- الأزرار ---------- */
+.btn {
+  font: inherit; font-weight: 700;
+  min-height: 3rem; padding: 0 1.25rem;
+  border: 1.5px solid transparent; border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  text-decoration: none;
+  transition: background-color .15s, opacity .15s;
+}
+.btn:active { transform: translateY(1px); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.btn-primary { background: var(--teal); color: #fff; width: 100%; font-size: 1.1rem; min-height: 3.25rem; }
+.btn-primary:hover { background: var(--teal-dark); }
+.btn-outline { background: transparent; color: var(--teal); border-color: var(--teal); }
+.btn-outline:hover { background: var(--teal-soft); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { background: #8f1d17; }
+
+/* ---------- نموذج الإضافة ---------- */
+.add form { display: grid; gap: 1rem; margin-top: 1rem; }
+.field { border: 0; padding: 0; margin: 0; min-width: 0; }
+.field > label, .field > legend { display: block; font-weight: 700; margin-bottom: .35rem; padding: 0; }
+.field small { color: var(--muted); font-weight: 400; margin-inline-start: .4rem; }
+
+input[type="text"] {
+  width: 100%; height: 3.25rem; padding: 0 .9rem;
+  font: inherit; color: var(--ink); background: #fff;
+  border: 1.5px solid var(--line); border-radius: 10px;
+}
+input[type="text"]:focus { border-color: var(--teal); }
+input[aria-invalid="true"] { border-color: var(--red); background: var(--red-soft); }
+
+.segmented { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.segmented label { position: relative; }
+.segmented input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.segmented span {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 3.25rem; font-weight: 700;
+  border: 1.5px solid var(--line); border-radius: 10px; background: #fff; color: var(--muted);
+}
+.segmented input:checked + span { background: var(--teal); border-color: var(--teal); color: #fff; }
+.segmented .emerg input:checked + span { background: var(--red); border-color: var(--red); }
+.segmented input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.number-field { display: flex; border: 1.5px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; }
+.number-field:focus-within { border-color: var(--teal); }
+.number-field .prefix { display: flex; align-items: center; padding: 0 .9rem; background: var(--red-soft); color: var(--red); font-weight: 800; font-size: 1.2rem; }
+.number-field input { flex: 1; min-width: 0; border: 0; border-radius: 0; font-weight: 800; font-size: 1.2rem; font-variant-numeric: tabular-nums; }
+.number-field input:focus-visible { outline-offset: -3px; }
+
+/* ---------- المريض الحالي ---------- */
+.current { display: flex; flex-direction: column; background: var(--teal-dark); border-color: var(--teal-dark); color: #fff; transition: background-color .3s; }
+.current[data-type="emergency"] { background: var(--red-dark); border-color: var(--red-dark); }
+.current h2 { color: rgba(255,255,255,.75); font-size: 1rem; font-weight: 600; }
+.current :focus-visible { outline-color: #fff; }
+
+.cur-main { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; margin-top: .75rem; }
+.cur-num-wrap { display: flex; flex-direction: column; min-width: 6rem; }
+.cur-num-label { color: rgba(255,255,255,.7); font-size: .95rem; }
+.cur-number { font-size: clamp(3.75rem, 9vw, 5.75rem); font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.cur-name { flex: 1 1 12rem; font-size: clamp(1.6rem, 3.4vw, 2.3rem); font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.cur-name.is-empty { color: rgba(255,255,255,.55); font-weight: 400; font-size: 1.3rem; }
+
+.actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin-top: auto; padding-top: 1.25rem; }
+.btn-next { grid-column: 1 / -1; min-height: 4.75rem; font-size: 1.9rem; font-weight: 800; background: var(--mint); color: #05302d; }
+.btn-next:hover { background: #a9ddfa; }
+.btn-light { background: transparent; color: #fff; border-color: rgba(255,255,255,.5); padding: 0 .5rem; }
+.btn-light:hover { background: rgba(255,255,255,.12); }
+.actions .is-idle { opacity: .5; }
+
+/* ---------- القوائم ---------- */
+.rows { list-style: none; margin: .75rem 0 0; padding: 0; }
+.row { display: flex; align-items: center; gap: .7rem; flex-wrap: wrap; padding: .7rem .6rem; border-top: 1px solid var(--line); }
+.row:first-child { border-top-color: transparent; }
+.row.is-current { background: var(--teal-soft); border-radius: 10px; border-top-color: transparent; }
+.row.is-current + .row { border-top-color: transparent; }
+.empty { color: var(--muted); padding: 1rem .6rem; }
+
+.num { min-width: 3.6rem; text-align: center; font-weight: 800; font-size: 1.2rem; font-variant-numeric: tabular-nums; padding: .1rem .6rem; border-radius: 8px; background: var(--teal-soft); color: var(--teal); }
+.num.emerg { background: var(--red-soft); color: var(--red); }
+.row.is-current .num { background: var(--teal); color: #fff; }
+.row.is-current .num.emerg { background: var(--red); color: #fff; }
+.who { flex: 1 1 9rem; font-weight: 600; overflow-wrap: anywhere; }
+
+.tag { font-size: .85rem; font-weight: 600; padding: .1rem .7rem; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.tag-emerg { color: var(--red); border-color: #efbab5; background: var(--red-soft); }
+.st-called { background: var(--teal); border-color: var(--teal); color: #fff; }
+.st-skipped { background: var(--amber-soft); border-color: #ecd29a; color: var(--amber); }
+.st-completed { background: var(--green-soft); border-color: #b5dcc1; color: var(--green); }
+.time { color: var(--muted); font-size: .9rem; font-variant-numeric: tabular-nums; }
+
+.btn-del { font: inherit; font-size: .9rem; font-weight: 600; color: var(--red); background: transparent; border: 1px solid #efbab5; border-radius: 8px; padding: .25rem .8rem; cursor: pointer; }
+.btn-del:hover { background: var(--red-soft); }
+
+/* ---------- منطقة الخطر ---------- */
+.danger { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 1rem 1.25rem; border: 1.5px dashed #e0a7a1; border-radius: 14px; }
+.danger p { color: var(--muted); }
+.foot { color: var(--muted); font-size: .85rem; text-align: center; }
+
+/* ---------- الإشعارات ونافذة التأكيد ---------- */
+.toasts { position: fixed; inset-inline: 0; top: 1rem; z-index: 60; display: flex; flex-direction: column; align-items: center; gap: .5rem; pointer-events: none; padding: 0 1rem; }
+.toast { background: var(--teal-dark); color: #fff; font-weight: 600; padding: .75rem 1.25rem; border-radius: 10px; max-width: min(100%, 32rem); animation: toast-in .2s ease-out; transition: opacity .35s, transform .35s; }
+.toast.success { background: var(--teal); }
+.toast.error { background: var(--red); }
+.toast.hide { opacity: 0; transform: translateY(-8px); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(-8px); } }
+
+.overlay { position: fixed; inset: 0; z-index: 70; display: flex; align-items: center; justify-content: center; padding: 1rem; background: rgba(8, 28, 30, .6); }
+.dialog { background: #fff; border-radius: 14px; padding: 1.5rem; width: min(100%, 26rem); }
+.dialog p { font-size: 1.15rem; font-weight: 700; line-height: 1.5; }
+.dialog-actions { display: flex; gap: .6rem; justify-content: flex-end; margin-top: 1.25rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .toast { animation: none; }
+  * { transition: none !important; }
+}

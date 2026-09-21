@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>نظام انتظار المرضى — لوحة التحكم</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+
+    <!-- الترويسة -->
+    <header class="top">
+      <div>
+        <h1>نظام انتظار المرضى</h1>
+        <p class="clinic-name" id="clinicName"></p>
+      </div>
+      <a class="btn btn-outline" href="display.html" target="_blank" rel="noopener">فتح شاشة العرض</a>
+    </header>
+
+    <!-- إضافة مريض -->
+    <section class="panel add" aria-labelledby="addTitle">
+      <h2 id="addTitle">إضافة مريض</h2>
+      <form id="patientForm" novalidate autocomplete="off">
+        <div class="field">
+          <label for="nameInput">اسم المريض</label>
+          <input id="nameInput" type="text" maxlength="60" placeholder="مثال: أحمد محمد علي">
+        </div>
+
+        <fieldset class="field">
+          <legend>نوع الدور</legend>
+          <div class="segmented">
+            <label><input type="radio" name="type" value="normal" checked><span>عادي</span></label>
+            <label class="emerg"><input type="radio" name="type" value="emergency"><span>طوارئ</span></label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="numberInput">رقم الدور <small>تلقائي — يمكنك تعديله</small></label>
+          <div class="number-field" dir="ltr">
+            <span class="prefix" id="numberPrefix" hidden>E</span>
+            <input id="numberInput" type="text" inputmode="numeric" maxlength="4">
+          </div>
+        </div>
+
+        <button class="btn btn-primary" type="submit">إضافة إلى الطابور</button>
+      </form>
+    </section>
+
+    <!-- المريض الحالي + الأزرار -->
+    <section class="panel current" id="currentPanel" data-type="none" aria-labelledby="curTitle">
+      <h2 id="curTitle">المريض الحالي</h2>
+      <div class="cur-main">
+        <div class="cur-num-wrap">
+          <span class="cur-num-label">رقم الدور</span>
+          <span class="cur-number" id="curNumber" dir="ltr">—</span>
+        </div>
+        <p class="cur-name" id="curName">لا يوجد مريض حالي</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-next" id="btnNext" type="button">التالي</button>
+        <button class="btn btn-light" id="btnRecall" type="button">إعادة النداء</button>
+        <button class="btn btn-light" id="btnSkip" type="button">تخطي</button>
+        <button class="btn btn-light" id="btnComplete" type="button">إنهاء</button>
+      </div>
+    </section>
+
+    <!-- قائمة الانتظار -->
+    <section class="panel waiting" aria-labelledby="waitTitle">
+      <div class="panel-head">
+        <h2 id="waitTitle">قائمة الانتظار</h2>
+        <span class="count" id="waitingCount">0</span>
+      </div>
+      <ul class="rows" id="waitingList"></ul>
+    </section>
+
+    <!-- السجل -->
+    <section class="panel history" aria-labelledby="histTitle">
+      <div class="panel-head">
+        <h2 id="histTitle">السجل</h2>
+        <span class="hint">آخر المنتهين والمتخطَّين</span>
+      </div>
+      <ul class="rows" id="historyList"></ul>
+    </section>
+
+    <!-- منطقة الخطر -->
+    <section class="danger" aria-label="إعادة تعيين">
+      <p>حذف جميع المرضى والسجل، وإعادة الترقيم من 1 و E1.</p>
+      <button class="btn btn-danger" id="btnReset" type="button">إعادة تعيين الطابور</button>
+    </section>
+
+    <footer class="foot">المزامنة مع شاشة العرض: <span id="syncMode"></span></footer>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <!-- نافذة التأكيد -->
+  <div class="overlay" id="confirmOverlay" hidden>
+    <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirmMsg">
+      <p id="confirmMsg"></p>
+      <div class="dialog-actions">
+        <button class="btn btn-outline" id="confirmCancel" type="button">إلغاء</button>
+        <button class="btn btn-danger" id="confirmOk" type="button">تأكيد</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="queue.js"></script>
+  <script src="control.js"></script>
+</body>
+</html>
