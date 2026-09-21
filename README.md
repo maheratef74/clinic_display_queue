@@ -25,6 +25,14 @@ clinic-queue/
 
 The server stores the queue in `queue-state.json` beside `server.js`. Do not open the HTML files directly with `file://`.
 
+### Deploy to Railway or Render
+
+Deploy the repository as a **Node web service**, not a static site. The start command is `npm start`, which runs `node server.js`. The service uses the platform-provided `PORT` and exposes `/health` for health checks.
+
+On Render, use the included `render.yaml`. Set `DATA_FILE=/data/queue-state.json` so the queue is stored on the persistent disk. Railway must use a persistent volume mounted at `/data` with the same `DATA_FILE=/data/queue-state.json` environment variable; without a volume, the queue can be lost on redeploy.
+
+After deployment, test `https://YOUR-SERVICE/health` and confirm it returns `{"ok":true}`. Then open `https://YOUR-SERVICE/index.html`. Do not use a separate static-site deployment unless the frontend API URL is changed to point to this Node service.
+
 ## How it works
 
 - **State** lives on the Node server in `queue-state.json`:

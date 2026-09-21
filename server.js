@@ -5,7 +5,7 @@ const crypto = require("crypto");
 
 const HOST = process.env.HOST || "0.0.0.0";
 const PORT = Number(process.env.PORT || 8000);
-const DATA_FILE = path.join(__dirname, "queue-state.json");
+const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, "queue-state.json");
 const HISTORY_LIMIT = 20;
 const EMERGENCY_PREFIX = "طوارئ";
 const clients = new Set();
@@ -224,6 +224,7 @@ async function readBody(request) {
 
 async function handle(request, response) {
   const url = new URL(request.url, "http://localhost");
+  if (url.pathname === "/health" && request.method === "GET") return sendJson(response, 200, { ok: true });
   if (url.pathname === "/api/state" && request.method === "GET") return sendJson(response, 200, state);
   if (url.pathname === "/api/events" && request.method === "GET") {
     response.writeHead(200, { "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-cache", Connection: "keep-alive", "Access-Control-Allow-Origin": "*" });

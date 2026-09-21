@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: clinic-display-queue
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    disk:
+      name: queue-data
+      mountPath: /data
+      sizeGB: 1
