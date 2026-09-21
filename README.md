@@ -31,6 +31,15 @@ Deploy the repository as a **Node web service**, not a static site. The start co
 
 On Render, use the included `render.yaml`. Set `DATA_FILE=/data/queue-state.json` so the queue is stored on the persistent disk. Railway must use a persistent volume mounted at `/data` with the same `DATA_FILE=/data/queue-state.json` environment variable; without a volume, the queue can be lost on redeploy.
 
+Deployment checklist:
+
+1. Connect the service to this repository's `main` branch.
+2. Set the repository root as the service root directory.
+3. Use `npm install` as the build command and `npm start` as the start command.
+4. Add a persistent volume mounted at `/data`.
+5. Add the environment variable `DATA_FILE=/data/queue-state.json`.
+6. Save the settings and redeploy the service.
+
 After deployment, test `https://YOUR-SERVICE/health` and confirm it returns `{"ok":true}`. Then open `https://YOUR-SERVICE/index.html`. Do not use a separate static-site deployment unless the frontend API URL is changed to point to this Node service.
 
 ## How it works
