@@ -37,9 +37,9 @@ and `http://localhost:8000/display.html`. Or use Chrome / Edge.
   `{ type: "QUEUE_UPDATED", action: "CALL_NEXT" | "RECALL" | ..., state, eventId }`.
   If `BroadcastChannel` is missing, the `storage` event is used instead (state carries the same `lastAction` / `lastActionId`).
   Set `forceStorageFallback: true` in `config.js` to test the fallback.
-- **Order**: strictly first-added, first-called. Emergency patients have their own numbering (E1, E2…) but do **not** jump the queue.
-  To change that, edit `nextWaiting()` in `queue.js`.
-- **Numbers**: suggested automatically per type; can be overridden (digits only, Arabic-Indic digits accepted).
+- **Order**: automatic flow is first-added, first-called. In the control page, waiting patients can be moved up/down or called immediately; this changes the same queue order used by **التالي**.
+  Emergency patients have their own numbering (طوارئ1, طوارئ2…) but do **not** jump the queue.
+- **Numbers**: suggested automatically per type; can be overridden (digits only, Arabic-Indic digits accepted). Change the emergency prefix in `config.js` if needed.
   Two *active* (waiting / called) patients cannot share a number.
 - **History**: completed and skipped patients stay in state; only the latest 20 are kept.
 - **Reset** clears everything, including history, and numbering restarts at 1 and E1.
@@ -75,5 +75,6 @@ and `http://localhost:8000/display.html`. Or use Chrome / Edge.
 7. **التالي** twice more → **E1** in red on the display. **إنهاء** → display shows "لا يوجد مريض يتم نداؤه حاليًا".
 8. **تخطي** on a current patient → the next one is shown and spoken; the skipped one appears in **السجل**.
 9. Try adding an empty name → friendly message. Try an already-used number → friendly message.
-10. **إعادة تعيين الطابور** → confirmation → everything cleared; next numbers are **1** and **E1**.
-11. Display: **ملء الشاشة** enters fullscreen, Esc exits.
+10. Use the arrows to reorder waiting patients, or **نداء الآن** to call one directly; then **التالي** continues from the updated order.
+11. **إعادة تعيين الطابور** → confirmation → everything cleared; next numbers are **1** and **طوارئ1**.
+12. Display: **ملء الشاشة** enters fullscreen, Esc exits.

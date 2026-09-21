@@ -89,6 +89,26 @@
       time.dir = "ltr";
       li.appendChild(time);
     } else {
+      if (p.status === "waiting") {
+        const controls = el("span", "row-controls");
+        const up = el("button", "btn-row", "↑");
+        up.type = "button";
+        up.title = "تقديم المريض";
+        up.setAttribute("aria-label", "تقديم " + p.name);
+        up.onclick = () => apply(Queue.movePatient(p.id, "up"));
+        const down = el("button", "btn-row", "↓");
+        down.type = "button";
+        down.title = "تأخير المريض";
+        down.setAttribute("aria-label", "تأخير " + p.name);
+        down.onclick = () => apply(Queue.movePatient(p.id, "down"));
+        const call = el("button", "btn-call-row", "نداء الآن");
+        call.type = "button";
+        call.onclick = () => apply(Queue.callPatientById(p.id), "تم نداء " + p.number + " — " + p.name);
+        controls.appendChild(up);
+        controls.appendChild(down);
+        controls.appendChild(call);
+        li.appendChild(controls);
+      }
       const del = el("button", "btn-del", "حذف");
       del.type = "button";
       del.setAttribute("aria-label", "حذف " + p.name);

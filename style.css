@@ -175,6 +175,12 @@ input[aria-invalid="true"] { border-color: var(--red); background: var(--red-sof
 
 .btn-del { font: inherit; font-size: .9rem; font-weight: 600; color: var(--red); background: transparent; border: 1px solid #efbab5; border-radius: 8px; padding: .25rem .8rem; cursor: pointer; }
 .btn-del:hover { background: var(--red-soft); }
+.row-controls { display: inline-flex; align-items: center; gap: .35rem; }
+.btn-row, .btn-call-row { font: inherit; font-size: .9rem; font-weight: 700; border-radius: 8px; cursor: pointer; }
+.btn-row { width: 2rem; height: 2rem; padding: 0; color: var(--teal); background: var(--teal-soft); border: 1px solid #b8d7e8; }
+.btn-row:hover { background: #cbe5f4; }
+.btn-call-row { color: var(--green); background: var(--green-soft); border: 1px solid #b5dcc1; padding: .25rem .65rem; }
+.btn-call-row:hover { background: #ccebd5; }
 
 /* ---------- منطقة الخطر ---------- */
 .danger { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 1rem 1.25rem; border: 1.5px dashed #e0a7a1; border-radius: 14px; }

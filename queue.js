@@ -14,6 +14,7 @@ const Queue = (function () {
   const STORAGE_KEY = "clinic_queue_state_v1";
   const CHANNEL_NAME = "clinic_queue_channel";
   const HISTORY_LIMIT = CFG.historyLimit > 0 ? CFG.historyLimit : 20;
+  const EMERGENCY_PREFIX = String(CFG.emergencyPrefix || "طوارئ");
 
   let memoryState = null; // نسخة احتياطية إن تعذّر استخدام localStorage
 
@@ -29,7 +30,7 @@ const Queue = (function () {
   const nowIso = () => new Date().toISOString();
   const isActive = (p) => p.status === "waiting" || p.status === "called";
   const fail = (message, field) => ({ ok: false, message: message, field: field || null });
-  const formatNumber = (type, n) => (type === "emergency" ? "E" : "") + n;
+  const formatNumber = (type, n) => (type === "emergency" ? EMERGENCY_PREFIX : "") + n;
   const toLatinDigits = (v) =>
     String(v == null ? "" : v)
       .replace(/[\u0660-\u0669]/g, (d) => d.charCodeAt(0) - 0x0660) // ٠-٩
@@ -54,7 +55,12 @@ const Queue = (function () {
     if (Array.isArray(raw.patients)) {
       s.patients = raw.patients.filter(
         (p) => p && p.id && p.name && p.number && (p.type === "normal" || p.type === "emergency")
-      );
+      ).map((p) => {
+        if (p.type === "emergency" && /^E\d+$/i.test(String(p.number))) {
+          return Object.assign({}, p, { number: formatNumber("emergency", String(p.number).slice(1)) });
+        }
+        return p;
+      });
     }
     const num = (v) => Math.max(1, parseInt(v, 10) || 1);
     s.nextNormalNumber = num(raw.nextNormalNumber);
@@ -161,7 +167,9 @@ const Queue = (function () {
     let n = suggested;
 
     let raw = toLatinDigits(numberInput).trim().toUpperCase();
-    if (type === "emergency") raw = raw.replace(/^E/, "");
+    if (type === "emergency") {
+      raw = raw.replace(new RegExp("^" + EMERGENCY_PREFIX, "i"), "").replace(/^E/i, "");
+    }
     if (raw !== "") {
       if (!/^\d{1,4}$/.test(raw) || parseInt(raw, 10) < 1) return fail("رقم الدور غير صالح", "number");
       n = parseInt(raw, 10);
@@ -202,6 +210,31 @@ const Queue = (function () {
     if (cur) finish(cur, "completed");
     callPatient(s, next);
     return commit(s, "CALL_NEXT", next);
+  }
+
+  function callPatientById(id) {
+    const s = load();
+    const next = s.patients.filter((p) => p.id === id && p.status === "waiting")[0];
+    if (!next) return fail("هذا المريض غير موجود في قائمة الانتظار");
+    const cur = currentPatient(s);
+    if (cur) finish(cur, "completed");
+    callPatient(s, next);
+    return commit(s, "CALL_NEXT", next);
+  }
+
+  function movePatient(id, direction) {
+    const s = load();
+    const index = s.patients.findIndex((p) => p.id === id && p.status === "waiting");
+    if (index < 0) return fail("هذا المريض غير موجود في قائمة الانتظار");
+    const step = direction === "up" ? -1 : direction === "down" ? 1 : 0;
+    const target = index + step;
+    if (!step || target < 0 || target >= s.patients.length || s.patients[target].status !== "waiting") {
+      return fail("لا يمكن تغيير ترتيب هذا المريض أكثر");
+    }
+    const moved = s.patients[index];
+    s.patients[index] = s.patients[target];
+    s.patients[target] = moved;
+    return commit(s, "REORDER", moved);
   }
 
   function recall() {
@@ -246,6 +279,8 @@ const Queue = (function () {
     addPatient: addPatient,
     removePatient: removePatient,
     callNext: callNext,
+    callPatientById: callPatientById,
+    movePatient: movePatient,
     recall: recall,
     skip: skip,
     complete: complete,
